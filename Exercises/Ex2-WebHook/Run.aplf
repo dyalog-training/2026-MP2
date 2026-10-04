@@ -1,0 +1,64 @@
+ servers←{which}Run ports;folder;names;spaces;fns;i;rc;msg
+⍝ Start the Exercise 2 servers on localhost: the ticket server and the callback server
+⍝ which   - [optional] 'Start' (default) or 'Solution': the folder whose code is loaded
+⍝ ports   - two port numbers: ticket server, callback server (the README uses 8081 8082)
+⍝ servers - the two Jarvis servers (ticket callback); stop both with servers.Stop
+⍝           ⍬ if Setup has not been run or the folder does not exist
+⍝           the servers, not started, if one could not start (e.g. a port is in use): set .Port and run .Start
+⍝ The ticket server's code is loaded into #.Ex2Ticket (from Ticket/, plus the supplied Factors.aplf)
+⍝ and the callback server's into #.Ex2Callback (from Callback/). Edit with )ED, e.g. )ED #.Ex2Ticket.Submit;
+⍝ the servers use the change straight away. The servers are kept in #.Ex2Servers, so running Run again stops them first.
+⍝ Usage:
+⍝      (ticket callback)←Run 8081 8082
+⍝      (ticket callback)←'Solution' Run 8081 8082
+ servers←⍬
+ :If 0=⎕NC'which'
+     which←'Start'
+ :EndIf
+ :If 0=#.⎕NC'WorkshopRoot'
+     ⎕←'Problem: run Setup first (see Exercises/README.md)'
+     →0
+ :EndIf
+ folder←#.WorkshopRoot,'/Exercises/Ex2-WebHook/'
+ :If ~⎕NEXISTS folder,which
+     ⎕←'Problem: no folder "',folder,which,'"; use ''Start'' or ''Solution'''
+     →0
+ :EndIf
+
+⍝ Stop the servers from an earlier Run, if they are still running.
+⍝ On Linux, a second server on a port already used in the same session starts without an error, and the old one
+⍝ keeps answering with the old code. On Windows the second server fails to start with "port in use". Either way, stop first.
+ :If 0≠#.⎕NC'Ex2Servers' ⍝ a vector of two servers is a variable (name class 2), not a namespace
+ :AndIf ∨/#.Ex2Servers.Running
+     {}(#.Ex2Servers/⍨#.Ex2Servers.Running).Stop
+     ⎕←'Stopped the Exercise 2 servers that were already running'
+ :EndIf
+
+⍝ Load each server's functions into a fresh namespace, and set up its data
+ names←'Ex2Ticket' 'Ex2Callback'
+ #.⎕EX¨names
+ spaces←{⍎⍵ #.⎕NS''}¨names
+ :For i :In 1 2
+     fns←⊃0(⎕NINFO⍠1)folder,which,'/',(i⊃'Ticket' 'Callback'),'/*.aplf'
+     {}{2(i⊃spaces).⎕FIX'file://',⍵}¨fns
+ :EndFor
+ {}2 #.Ex2Ticket.⎕FIX'file://',folder,'Factors.aplf'
+ #.Ex2Ticket.LastTicket←0  ⍝ the last ticket number given out
+ #.Ex2Callback.Results←⍬   ⍝ the results received, in order of arrival
+
+ servers←#.Jarvis.New¨'' ''
+ #.Ex2Servers←servers
+ servers.Port←ports
+ servers.CodeLocation←spaces
+ servers.IncludeFns←('Submit' 'Status')(,⊂'Result') ⍝ only these are endpoints; Work and Factors are not
+ servers.DYALOG_JARVIS_THREAD←⊂'DEBUG' ⍝ run in the background, keep the session usable
+ :For i :In 1 2
+     (rc msg)←(i⊃servers).Start
+     :If rc≠0
+         ⎕←'Problem: could not start the ',(i⊃'ticket' 'callback'),' server: ',msg
+         ⎕←'If a port is in use, try others, for example: (ticket callback)←Run ',⍕ports+10
+         {}(servers/⍨servers.Running).Stop
+         →0
+     :EndIf
+ :EndFor
+ ⎕←'Exercise 2 (',which,'): ticket server on http://localhost:',(⍕⊃ports),', callback server on http://localhost:',⍕2⊃ports

@@ -1,0 +1,8 @@
+ Work(ticket job)
+⍝ Do the work for one ticket, then post the result to the job's callback URL: this is the web hook
+⍝ Runs in its own thread, started by Submit. Not an endpoint (see IncludeFns in Run).
+⍝ The work: wait job.seconds (default 2 to 4 at random), then Factors job.n
+⍝ Post {"ticket":…,"n":…,"factors":[…]} to job.callback, and print a message if that fails
+⍝ Put it all inside :Trap 0 ... :Else (print the error) ... :EndTrap: nothing else catches an error in this thread
+⍝ Step C4: replace the line below with your code
+ ⎕←'Ticket ',(⍕ticket),': Work is not written yet'

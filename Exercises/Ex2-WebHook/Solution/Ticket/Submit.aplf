@@ -1,0 +1,33 @@
+ r←req Submit job;ticket
+⍝ Accept a job, start the work in a separate thread, and return a ticket number straight away
+⍝ req - the request; job - namespace from the JSON body with
+⍝       n        the number to factor: a whole number from 2 to 1E12
+⍝       callback the URL to post the result to, e.g. "http://localhost:8082/Result"
+⍝       seconds  [optional] how long the work should pretend to take (default: 2 to 4 seconds at random)
+⍝ r   - namespace with the ticket number, e.g. {"ticket":17}; HTTP 400 if the job is not valid
+ :If 9≠⌊⎕NC'job' ⍝ no request body: job is '' rather than a namespace
+     job←⎕NS''
+ :EndIf
+ :If ~∧/2=⌊job.⎕NC'n' 'callback'
+     r←'A job needs "n" and "callback"'
+     r req.Fail 400
+     →0
+ :EndIf
+⍝ Check the values too: a bad n would fail later in Work, after the client already has a ticket
+ :If ~{(0=≢⍴⍵)∧2|⎕DR ⍵:(⍵=⌊⍵)∧(2≤⍵)∧⍵≤1E12 ⋄ 0}job.n ⍝ a single number (odd ⎕DR), whole, in range
+     r←'"n" must be a whole number from 2 to 1E12'
+     r req.Fail 400
+     →0
+ :EndIf
+ :If ~{(1=≢⍴⍵)∧0=10|⎕DR ⍵}job.callback ⍝ a character vector
+     r←'"callback" must be a URL'
+     r req.Fail 400
+     →0
+ :EndIf
+ :Hold 'Ex2Ticket' ⍝ two requests at once must not get the same ticket
+     ticket←LastTicket←LastTicket+1
+ :EndHold
+ Work&ticket job ⍝ & runs Work in a new thread, so we can answer now
+ r←⎕NS''
+ r.ticket←ticket
+⍝ v20: r←(ticket: ticket)

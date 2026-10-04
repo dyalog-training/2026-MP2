@@ -1,0 +1,6 @@
+ r←Result payload
+⍝ Receive a result posted by the ticket server's worker, keep it in Results, and print it
+⍝ payload - namespace from the JSON body, e.g. {"ticket":17,"n":360,"factors":[2,2,2,3,3,5]}
+ Results,←payload
+ ⎕←'Result for ticket ',(⍕payload.ticket),': ',(⍕payload.n),' = ',¯1↓∊(⍕¨payload.factors),¨'×'
+ r←'received'

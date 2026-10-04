@@ -1,0 +1,9 @@
+ r←req Submit job
+⍝ Accept a job, start the work in a separate thread, and return a ticket number straight away
+⍝ req - the request; job - namespace from the JSON body with
+⍝       n        the number to factor: a whole number from 2 to 1E12
+⍝       callback the URL to post the result to, e.g. "http://localhost:8082/Result"
+⍝       seconds  [optional] how long the work should pretend to take (default: 2 to 4 seconds at random)
+⍝ r   - namespace with the ticket number, e.g. {"ticket":17}; HTTP 400 if the job is not valid
+⍝ Step C3: replace the line below with your code
+ r←'Submit is not written yet'

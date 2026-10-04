@@ -1,0 +1,14 @@
+ r←Factors n;d
+⍝ The prime factors of n, e.g. Factors 360 gives 2 2 2 3 3 5
+⍝ Supplied: this is the "work" the ticket server does for each job
+ r←⍬
+ d←2
+ :While n≥d×d
+     :If 0=d|n
+         r,←d
+         n÷←d
+     :Else
+         d+←1
+     :EndIf
+ :EndWhile
+ r,←(n>1)/n

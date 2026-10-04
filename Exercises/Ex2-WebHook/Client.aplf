@@ -1,0 +1,56 @@
+ {r}←Client count;ports;s;h;i;job;res;t0;ok;deadline;Received
+⍝ Submit count jobs to the ticket server, show each ticket coming back at once, then wait for the results
+⍝ Supplied: you don't need to change this. Start the servers with Run first.
+⍝ r - namespace: tickets (in the order submitted), ms (milliseconds each submission took),
+⍝     received (tickets in the order their results arrived at the callback server)
+⍝ Usage: Client 5
+ r←⎕NS''
+ r.(tickets ms received)←⍬ ⍬ ⍬
+ :If 0=#.⎕NC'Ex2Servers' ⍝ a vector of two servers is a variable (name class 2), not a namespace
+     ⎕←'Problem: start the servers first, with Run'
+     →0
+ :EndIf
+ ports←#.Ex2Servers.Port
+
+⍝ One HttpCommand instance for all the calls to the ticket server
+ s←⎕NS''
+ s.(Command BaseURL ContentType TranslateData)←'post'('http://localhost:',⍕⊃ports)'application/json' 1
+ h←#.HttpCommand.New s
+⍝ v20: h←#.HttpCommand.New (Command: 'post' ⋄ BaseURL: 'http://localhost:',⍕⊃ports ⋄ ContentType: 'application/json' ⋄ TranslateData: 1)
+ h.URL←'Submit'
+
+ ⎕←'Submitting ',(⍕count),' jobs to http://localhost:',(⍕⊃ports),'/Submit'
+ :For i :In ⍳count
+     job←⎕NS''
+     job.(n callback)←(1E9+?1E9)('http://localhost:',(⍕2⊃ports),'/Result')
+⍝ v20: job←(n: 1E9+?1E9 ⋄ callback: 'http://localhost:',(⍕2⊃ports),'/Result')
+     h.Params←job
+     t0←⎕AI[3]
+     res←h.Run
+     r.ms,←⎕AI[3]-t0
+     ok←(0 200≡res.(rc HttpStatus))∧{0::0 ⋄ 2=⌊⍵.⎕NC⊂'ticket'}res.Data
+     :If ok
+         r.tickets,←res.Data.ticket
+         ⎕←'  Job ',(⍕i),' (n=',(⍕job.n),'): ticket ',(⍕res.Data.ticket),' in ',(⍕⊃⌽r.ms),' ms'
+     :Else
+         ⎕←'  Job ',(⍕i),': no ticket (rc ',(⍕res.rc),', HTTP status ',(⍕res.HttpStatus),'): ',⍕res.Data
+     :EndIf
+ :EndFor
+ :If 0∊⍴r.tickets
+     ⎕←'No tickets, so no results to wait for'
+     →0
+ :EndIf
+
+⍝ Wait up to 10 seconds for the results to reach the callback server
+ ⎕←'All submitted. Waiting for the results to arrive at the callback server...'
+ Received←{0::⍬ ⋄ 0∊⍴⍵:⍬ ⋄ ⍵.ticket}
+ deadline←⎕AI[3]+10000
+ :Repeat
+     ⎕DL 0.2
+     r.received←{⍵/⍨⍵∊r.tickets}Received #.Ex2Callback.Results
+ :Until (∧/r.tickets∊r.received)∨⎕AI[3]>deadline
+ :If ∧/r.tickets∊r.received
+     ⎕←'All ',(⍕≢r.tickets),' results arrived, in this order of tickets: ',⍕r.received
+ :Else
+     ⎕←'Gave up waiting. No result yet for tickets: ',⍕r.tickets~r.received
+ :EndIf

@@ -25,7 +25,8 @@
  :EndIf
 
 ⍝ Stop the server from an earlier Run, if it is still running.
-⍝ Two servers on the same port in one session do not report an error, and the old one would keep answering with the old code.
+⍝ On Linux, a second server on a port already used in the same session starts without an error, and the old one
+⍝ keeps answering with the old code. On Windows the second server fails to start with "port in use". Either way, stop first.
  :If 9=⌊#.⎕NC'Ex1Server'
  :AndIf #.Ex1Server.Running
      {}#.Ex1Server.Stop

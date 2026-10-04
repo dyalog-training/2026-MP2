@@ -1,0 +1,6 @@
+ r←Result payload
+⍝ Receive a result posted by the ticket server's worker, keep it in Results, and print it
+⍝ payload - namespace from the JSON body, e.g. {"ticket":17,"n":360,"factors":[2,2,2,3,3,5]}
+⍝ Results is a variable in this namespace (#.Ex2Callback); Run sets it to ⍬
+⍝ Step C2: replace the line below with your code
+ r←'Result is not written yet'

@@ -1,0 +1,21 @@
+ Work(ticket job);seconds;payload;r
+⍝ Do the work for one ticket, then post the result to the job's callback URL: this is the web hook
+⍝ Runs in its own thread, started by Submit. Not an endpoint (see IncludeFns in Run).
+⍝ Everything is inside :Trap, because nothing else catches an error in this thread:
+⍝ untrapped, it would suspend the thread (in a session) or stop APL (in a script), and the client would never know
+ :Trap 0
+     seconds←{6::1+?3 ⋄ ⍵.seconds}job
+⍝ v20: seconds←job ⎕VGET ⊂'seconds' (1+?3)
+     ⎕DL seconds ⍝ pretend the work takes a while, so results arrive out of order
+     payload←⎕NS''
+     payload.(ticket n factors)←ticket job.n(Factors job.n)
+⍝ v20: payload←⎕NS'' ⋄ payload ⎕VSET ('ticket' ticket)((,'n') job.n)('factors' (Factors job.n))
+     r←#.HttpCommand.GetJSON'post'job.callback payload
+     :If r.rc≠0 ⍝ the request failed: e.g. the callback server is not running
+         ⎕←'Ticket ',(⍕ticket),': could not reach ',job.callback,': ',r.msg
+     :ElseIf r.HttpStatus≠200 ⍝ the callback server said no
+         ⎕←'Ticket ',(⍕ticket),': ',job.callback,' answered with HTTP status ',⍕r.HttpStatus
+     :EndIf
+ :Else
+     ⎕←'Ticket ',(⍕ticket),': the work failed: ',⎕DMX.EM,(0<≢⎕DMX.Message)/': ',⎕DMX.Message
+ :EndTrap
