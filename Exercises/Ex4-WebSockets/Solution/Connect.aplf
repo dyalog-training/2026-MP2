@@ -1,0 +1,9 @@
+ r←Connect ns
+⍝ Jarvis calls this when a client opens a WebSocket connection
+⍝ ns - the connection's namespace: ns.conx is the connection's name, ns.Server is the Jarvis server
+⍝ r  - 0 to accept the connection (anything else closes it)
+⍝ Record the connection's name in Clients, so that Receive can send messages to everyone
+ :Hold 'Ex4Clients' ⍝ two clients can connect at once
+     Clients,←⊂ns.conx
+ :EndHold
+ r←0

@@ -43,7 +43,7 @@ Setup '<repo>'
 ```
 Loaded:
   HttpCommand 5.11.2 2026-09-29
-  Jarvis 1.23.0 2026-09-25
+  Jarvis 1.23.1 2026-10-03
   WebSocketClient 1.0.1 2026-10-03
 Checking that a Jarvis server can run on localhost:8089
 Ready

@@ -1,0 +1,44 @@
+ r←Receive msg;ns;in;type;user;text;out
+⍝ Jarvis calls this for each message a client sends
+⍝ msg - namespace with Payload (the text received), DataType, and Complete; msg.## is the connection's namespace
+⍝ Messages are JSON:   {"type":"join","user":"Ada"}   or   {"type":"msg","text":"Hello"}
+⍝ Each is sent on to everyone with the sender's name and the time:
+⍝   {"type":"join","user":"Ada","time":"14:05:09"}   {"type":"msg","user":"Ada","text":"Hello","time":"14:05:12"}
+⍝ Anything else gets an error reply to the sender only: {"type":"error","text":"..."}
+⍝ r   - 0 to keep the connection open (anything else closes it)
+ r←0
+ ns←msg.## ⍝ the connection this message came from
+ in←{0::⍬ ⋄ ⎕JSON ⍵}msg.Payload
+ :If 9≠⌊⎕NC'in' ⍝ not a JSON object
+     ns Reply'Messages must be JSON objects, e.g. {"type":"msg","text":"Hello"}'
+     →0
+ :EndIf
+ type←{6::'' ⋄ ⍵.type}in
+⍝ v20: type←in ⎕VGET ⊂'type' ''
+ :Select type
+ :Case 'join'
+     user←{6::'' ⋄ ⍵.user}in
+⍝ v20: user←in ⎕VGET ⊂'user' ''
+     :If ~{(1=≢⍴⍵)∧(0<≢⍵)∧0=10|⎕DR ⍵}user ⍝ a non-empty character vector
+         ns Reply'"join" needs a "user" name'
+         →0
+     :EndIf
+     ns.User←30↑⍣(30<≢user)⊢user ⍝ remember the name with the connection, up to 30 characters
+     out←⎕NS''
+     out.(type user time)←'join'ns.User Now
+⍝ v20: out←(type: 'join' ⋄ user: ns.User ⋄ time: Now)
+ :Case 'msg'
+     text←{6::'' ⋄ ⍵.text}in
+⍝ v20: text←in ⎕VGET ⊂'text' ''
+     :If ~{(1=≢⍴⍵)∧(0<≢⍵)∧0=10|⎕DR ⍵}text
+         ns Reply'"msg" needs some "text"'
+         →0
+     :EndIf
+     out←⎕NS''
+     out.(type user text time)←'msg'({6::'anonymous' ⋄ ⍵.User}ns)text Now ⍝ "anonymous" if they never joined
+⍝ v20: out←(type: 'msg' ⋄ user: ns ⎕VGET ⊂'User' 'anonymous' ⋄ text: text ⋄ time: Now)
+ :Else
+     ns Reply'Unknown message type "',(⍕type),'": use "join" or "msg"'
+     →0
+ :EndSelect
+ Clients ns.Server.WsSend out ⍝ to everyone. Clients holds connection names: WsSend can't take a list of connection namespaces

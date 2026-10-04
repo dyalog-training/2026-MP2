@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>APL Chat</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 2em auto; max-width: 40em; padding: 0 1em; color: #222; }
+  h1 { margin-bottom: 0.2em; }
+  #status { font-weight: bold; }
+  #status.connected { color: #1a7f37; }
+  #status.error { color: #b42318; }
+  .row { display: flex; gap: 0.5em; margin: 0.8em 0; }
+  .row input { flex: 1; font-size: 1em; padding: 0.3em; }
+  button { font-size: 1em; padding: 0.3em 0.8em; }
+  #messages { list-style: none; padding: 0; border-top: 1px solid #ddd; }
+  #messages li { padding: 0.3em 0; border-bottom: 1px solid #eee; }
+  #messages .time { color: #888; margin-right: 0.5em; font-variant-numeric: tabular-nums; }
+  #messages .user { font-weight: bold; margin-right: 0.3em; }
+  #messages .system { color: #555; font-style: italic; }
+  #messages .error { color: #b42318; }
+</style>
+</head>
+<body>
+<h1>APL Chat</h1>
+<p>Status: <span id="status">not connected</span></p>
+
+<div class="row">
+  <input id="name" placeholder="Your name" maxlength="30">
+  <button id="join">Join</button>
+  <button id="leave" disabled>Leave</button>
+</div>
+
+<ul id="messages"></ul>
+
+<div class="row">
+  <input id="text" placeholder="Type a message and press Enter" disabled>
+  <button id="send" disabled>Send</button>
+</div>
+
+<script>
+// Exercise 4: this page is supplied. You only need to change the EDIT HERE section below.
+// It opens a WebSocket to the server that served this page, at /chat.
+// Everything sent either way is JSON:
+//   to the server:   {"type":"join","user":"Ada"}   {"type":"msg","text":"Hello"}
+//   from the server: {"type":"join"|"leave","user":"Ada","time":"14:05:09"}
+//                    {"type":"msg","user":"Ada","text":"Hello","time":"14:05:12"}
+//                    {"type":"error","text":"..."}
+
+let ws = null;
+
+function join() {
+  const name = document.getElementById("name").value.trim();
+  if (!name) { setStatus("type your name first", "error"); return; }
+  const url = (location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/chat";
+  ws = new WebSocket(url);
+  ws.onopen = function () {
+    ws.send(JSON.stringify({ type: "join", user: name }));
+    setStatus("connected as " + name, "connected");
+    setJoined(true);
+  };
+  ws.onmessage = function (e) { show(JSON.parse(e.data)); };
+  ws.onclose = function () {
+    // After a failed connection, browsers fire onerror then onclose: keep the error on screen
+    if (document.getElementById("status").className !== "error") setStatus("not connected", "");
+    setJoined(false);
+    ws = null;
+  };
+  ws.onerror = function () { setStatus("connection error", "error"); };
+}
+
+function leave() { if (ws) ws.close(); }
+
+function send() {
+  const input = document.getElementById("text");
+  const text = input.value.trim();
+  if (!text || !ws) return;
+  ws.send(JSON.stringify(prepareMessage(text)));
+  input.value = "";
+}
+
+// Show one message from the server
+function show(m) {
+  if (m.type === "msg") addLine(m.time, m.user, m.text, "");
+  else if (m.type === "join") addLine(m.time, "", m.user + " joined", "system");
+  else if (m.type === "leave") addLine(m.time, "", m.user + " left", "system");
+  else if (m.type === "error") addLine("", "", "Error: " + m.text, "error");
+  else {
+    const text = showOther(m);
+    if (text !== null) addLine(m.time || "", "", text, "");
+  }
+}
+
+// ===== EDIT HERE ==========================================================
+// prepareMessage: given the text you typed, return the message to send.
+// showOther: given a message from the server whose type this page doesn't
+// already know, return the text to show, or null to ignore it.
+// Example (the /me stretch goal): remove the // from the 4 lines below, so that
+// "/me waves" is sent as {"type":"action","text":"waves"}, and shown as
+// "* Ada waves". The server must also send "action" messages on to everyone.
+function prepareMessage(text) {
+  // if (text.startsWith("/me ")) return { type: "action", text: text.slice(4) };
+  return { type: "msg", text: text };
+}
+function showOther(m) {
+  // if (m.type === "action") return "* " + m.user + " " + m.text;
+  return null;
+}
+// ===== END OF EDIT HERE ===================================================
+
+// ---- Helpers: you don't need to change anything below this line ----
+
+function setStatus(text, className) {
+  const status = document.getElementById("status");
+  status.textContent = text;
+  status.className = className;
+}
+
+function setJoined(joined) {
+  document.getElementById("name").disabled = joined;
+  document.getElementById("join").disabled = joined;
+  document.getElementById("leave").disabled = !joined;
+  document.getElementById("text").disabled = !joined;
+  document.getElementById("send").disabled = !joined;
+  if (joined) document.getElementById("text").focus();
+}
+
+function addLine(time, user, text, className) {
+  const item = document.createElement("li");
+  if (className) item.className = className;
+  if (time) {
+    const t = document.createElement("span");
+    t.className = "time";
+    t.textContent = time;
+    item.appendChild(t);
+  }
+  if (user) {
+    const u = document.createElement("span");
+    u.className = "user";
+    u.textContent = user + ":";
+    item.appendChild(u);
+  }
+  item.appendChild(document.createTextNode(text));
+  document.getElementById("messages").appendChild(item);
+  item.scrollIntoView();
+}
+
+document.getElementById("join").onclick = join;
+document.getElementById("leave").onclick = leave;
+document.getElementById("send").onclick = send;
+document.getElementById("text").onkeydown = function (e) { if (e.key === "Enter") send(); };
+document.getElementById("name").onkeydown = function (e) { if (e.key === "Enter") join(); };
+</script>
+</body>
+</html>

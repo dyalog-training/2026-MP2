@@ -1,0 +1,15 @@
+ r←Disconnect ns;out
+⍝ Jarvis calls this when a WebSocket connection closes
+⍝ ns - the connection's namespace (the same one Connect and Receive saw)
+⍝ r  - Jarvis requires a result; it is not used
+⍝ Forget the connection, and if the user had joined, tell everyone else they left
+ :Hold 'Ex4Clients'
+     Clients~←⊂ns.conx
+ :EndHold
+ :If 2=⌊ns.⎕NC⊂'User' ⍝ only announce people who joined
+     out←⎕NS''
+     out.(type user time)←'leave'ns.User Now
+⍝ v20: out←(type: 'leave' ⋄ user: ns.User ⋄ time: Now)
+     Clients ns.Server.WsSend out
+ :EndIf
+ r←0
