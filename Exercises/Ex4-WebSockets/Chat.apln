@@ -1,7 +1,7 @@
 :Namespace Chat
 ⍝ An APL client for the Exercise 4 chat, using WebSocketClient (supplied: you don't need to change this)
 ⍝ Usage:
-⍝      2 ⎕FIX 'file://',#.WorkshopRoot,'/Exercises/Ex4-WebSockets/Chat.apln'
+⍝      Load 4              ⍝ after Setup; or: 2 ⎕FIX 'file://',#.WorkshopRoot,'/Exercises/Ex4-WebSockets/Chat.apln'
 ⍝      Chat.Join 'Ada'     ⍝ connect to ws://localhost:8084/chat and join as Ada
 ⍝      Chat.Say 'Hello'    ⍝ send a message; every message that arrives is printed in the session
 ⍝      Chat.Leave          ⍝ disconnect
@@ -33,7 +33,7 @@
       (rc msg)←c.Connect
       :If rc≠0
           ⎕←'Problem: could not connect to ',c.URL,': ',msg
-          ⎕←'Is the chat server running? Start it with: server←Run ',⍕port
+          ⎕←'Is the chat server running? Start it with: server←Run4 ',⍕port
           →0
       :EndIf
       Client←c

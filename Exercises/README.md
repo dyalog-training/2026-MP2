@@ -31,11 +31,11 @@ Make a note of the folder you unpacked or cloned it into. These instructions cal
 
 ### 3. Run Setup
 
-Start Dyalog APL and enter these two lines, replacing `<repo>` with your folder (forward slashes work on every platform, including Windows):
+Start Dyalog APL and enter these two lines, replacing `<repo>` with your folder (forward slashes work on every platform, including Windows). `Setup ''` finds the workshop folder from where `Setup` was loaded; you can also give it the folder, as in `Setup '<repo>'`:
 
 ```apl
 2 ⎕FIX 'file://<repo>/Exercises/Setup.aplf'
-Setup '<repo>'
+Setup ''
 ```
 
 `Setup` loads the three tools and then checks that a web service can run on your machine. You should see something like:
@@ -56,7 +56,7 @@ If you see `Ready`, you're all set. If you see a line starting with `Problem:`, 
 The workshop lasts 3 hours 30 minutes, with two 15-minute breaks. Each exercise follows a short talk and has 30 minutes of hands-on time.
 
 | Start | Session |
-|-------|---------|
+|:------|:--------|
 | 0:00 | Welcome and setup |
 | 0:10 | Talk: asynchronous services and the tools |
 | 0:25 | Exercise 1: Introducing the tools |
@@ -73,7 +73,7 @@ The workshop lasts 3 hours 30 minutes, with two 15-minute breaks. Each exercise 
 At the start of each exercise, run `Setup` again in a fresh session (step 3 above), then follow that exercise's `README.md`:
 
 | Exercise | Folder | Uses |
-|----------|--------|------|
+|:---------|:-------|:-----|
 | 1: Introducing the tools | `Ex1-Tools/` | HttpCommand, Jarvis |
 | 2: Web hook | `Ex2-WebHook/` | HttpCommand, Jarvis (two servers) |
 | 3: Server-Sent Events | `Ex3-SSE/` | Jarvis, your browser |
@@ -84,7 +84,8 @@ At the start of each exercise, run `Setup` again in a fresh session (step 3 abov
 - **`README.md`**: the steps to follow. Every APL expression can be copied and pasted into your session. Steps marked **core** fit in the 30 minutes; steps marked **stretch** are optional, for if you finish early or want to continue after the workshop.
 - **`Start/`**: your starting point. Most of the code is supplied; you fill in a few short functions.
 - **`Solution/`**: a complete working version.
-- **`Run`**: each exercise has a `Run` function that starts its server(s) for you, so you don't need to retype any configuration.
+- **`Load`**: after `Setup`, `Load 1` (and so on) loads what an exercise needs into your session.
+- **`Run1` to `Run4`**: each exercise has a Run function, named after its number, that starts its server(s) for you, so you don't need to retype any configuration. The names differ so that you can load more than one exercise in the same session.
 
 **Behind or stuck?** That's fine. When the time is up, load the exercise's `Solution/` (its README shows how) and move on. No exercise depends on your own code from an earlier one.
 
@@ -103,9 +104,9 @@ In the solution files, the Dyalog 20 version appears as a comment starting `⍝ 
 
 ## Troubleshooting
 
-**`Problem: cannot find the workshop files`**: the folder you gave `Setup` isn't the one that contains `Exercises` and `Source`. Check the path, and remember the quotes: `Setup 'C:/Users/me/2026-MP2'`.
+**`Problem: cannot find the workshop files`**: the folder `Setup` used isn't the one that contains `Exercises` and `Source`. Check the path in the `2 ⎕FIX` line, or give `Setup` the folder yourself, remembering the quotes: `Setup 'C:/Users/me/2026-MP2'`.
 
-**`Problem: could not start a Jarvis server ... port 8089 is already in use`**: another program is using that port. Give `Setup` a different port on the left, for example `8090 Setup '<repo>'`. Exercise servers use ports 8080 to 8084; if one of those is in use, each exercise's `Run` function takes a different port as its argument, as shown in its README.
+**`Problem: could not start a Jarvis server ... port 8089 is already in use`**: another program is using that port. Give `Setup` a different port on the left, for example `8090 Setup ''`. Exercise servers use ports 8080 to 8084; if one of those is in use, each exercise's `Run` function takes a different port as its argument, as shown in its README.
 
 **A firewall prompt appears** (usually on Windows, sometimes on macOS) the first time a server starts: allow it. The exercises only ever connect to `localhost`, your own machine. A Jarvis server does listen on your network too, so stop your servers when you finish an exercise (each README shows how), especially on shared Wi-Fi.
 

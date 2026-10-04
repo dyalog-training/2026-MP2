@@ -1,4 +1,4 @@
- server←{which}Run port;folder;rc;msg
+ server←{which}Run4 port;folder;rc;msg
 ⍝ Start the Exercise 4 chat server on localhost
 ⍝ which  - [optional] 'Start' (default) or 'Solution': the folder whose code is loaded
 ⍝ port   - the port to listen on (the README uses 8084)
@@ -7,11 +7,11 @@
 ⍝          the Jarvis server, not started, if it could not start (e.g. the port is in use)
 ⍝ The code is loaded into #.Ex4: Connect, Receive, and Disconnect (called by Jarvis when a client connects,
 ⍝ sends a message, or disconnects), plus the supplied Now and Reply. Edit with )ED, e.g. )ED #.Ex4.Receive;
-⍝ the server uses the change straight away. The server is kept in #.Ex4Server, so running Run again stops it first.
+⍝ the server uses the change straight away. The server is kept in #.Ex4Server, so running Run4 again stops it first.
 ⍝ The web page is served from html/index.html.
 ⍝ Usage:
-⍝      server←Run 8084
-⍝      server←'Solution' Run 8084
+⍝      server←Run4 8084
+⍝      server←'Solution' Run4 8084
  server←⍬
  :If 0=⎕NC'which'
      which←'Start'
@@ -26,7 +26,7 @@
      →0
  :EndIf
 
-⍝ Stop the server from an earlier Run, if it is still running.
+⍝ Stop the server from an earlier Run4, if it is still running.
 ⍝ On Linux, a second server on a port already used in the same session starts without an error, and the old one
 ⍝ keeps answering with the old code. On Windows the second server fails to start with "port in use". Either way, stop first.
  :If 9=⌊#.⎕NC'Ex4Server'
@@ -56,7 +56,7 @@
  (rc msg)←server.Start
  :If rc≠0
      ⎕←'Problem: could not start the server: ',msg
-     ⎕←'If port ',(⍕port),' is in use, try another, for example: server←Run ',⍕port+10
+     ⎕←'If port ',(⍕port),' is in use, try another, for example: server←Run4 ',⍕port+10
      →0
  :EndIf
  ⎕←'Exercise 4 (',which,') is running: open http://localhost:',(⍕port),' in your browser'

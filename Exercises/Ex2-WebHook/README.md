@@ -28,12 +28,12 @@ The "work" is finding the prime factors of a number, using the supplied function
 You write three short functions:
 
 | Function | Server | Namespace | What it does |
-|----------|--------|-----------|--------------|
+|:---------|:-------|:----------|:-------------|
 | `Result` | callback | `#.Ex2Callback` | receives a result and stores it |
 | `Submit` | ticket | `#.Ex2Ticket` | gives out a ticket and starts the work |
 | `Work` | ticket | `#.Ex2Ticket` | does the work, then calls the web hook |
 
-`Work` is not an endpoint: `Run` sets each server's `IncludeFns` so that only `Submit` (and `Status`, a stretch goal) on the ticket server and `Result` on the callback server can be called over HTTP.
+`Work` is not an endpoint: `Run2` sets each server's `IncludeFns` so that only `Submit` (and `Status`, a stretch goal) on the ticket server and `Result` on the callback server can be called over HTTP.
 
 ## Getting started
 
@@ -41,14 +41,13 @@ If you haven't already, start Dyalog and run `Setup` (see [the workshop README](
 
 ```apl
 2 ⎕FIX 'file://<repo>/Exercises/Setup.aplf'
-Setup '<repo>'
+Setup ''
 ```
 
-Then load this exercise's `Run` function and the supplied `Client`. From here on, every line can be pasted as is:
+Then load this exercise: `Load 2` loads its `Run2` function and the supplied `Client`. From here on, every line can be pasted as is:
 
 ```apl
-2 ⎕FIX 'file://',#.WorkshopRoot,'/Exercises/Ex2-WebHook/Run.aplf'
-2 ⎕FIX 'file://',#.WorkshopRoot,'/Exercises/Ex2-WebHook/Client.aplf'
+Load 2
 ```
 
 ## Steps
@@ -56,7 +55,7 @@ Then load this exercise's `Run` function and the supplied `Client`. From here on
 ### C1. Start both servers (core)
 
 ```apl
-(ticket callback)←Run 8081 8082
+(ticket callback)←Run2 8081 8082
 Client 3
 ```
 
@@ -68,7 +67,7 @@ Client 3
 )ED #.Ex2Callback.Result
 ```
 
-`payload` is a namespace with `ticket`, `n`, and `factors`. Add it to the variable `Results` (which `Run` set to `⍬`) with `Results,←payload`, print a line about it, and return something short such as `'received'`. Your change takes effect as soon as you close the editor.
+`payload` is a namespace with `ticket`, `n`, and `factors`. Add it to the variable `Results` (which `Run2` set to `⍬`) with `Results,←payload`, print a line about it, and return something short such as `'received'`. Your change takes effect as soon as you close the editor.
 
 Try it by posting a result yourself:
 
@@ -104,7 +103,7 @@ Check your work: `0 200` and your reply, your printed line, and `1` result store
    - `callback` is text: `(1=≢⍴job.callback)∧0=10|⎕DR job.callback`.
 
    Checking now matters: once `Submit` has given out a ticket, a bad job can only fail later, out of the client's sight.
-2. Take the next ticket number. `LastTicket` (set to 0 by `Run`) holds the last one. Two requests can arrive at once, so take the number inside `:Hold 'Ex2Ticket'` ... `:EndHold`.
+2. Take the next ticket number. `LastTicket` (set to 0 by `Run2`) holds the last one. Two requests can arrive at once, so take the number inside `:Hold 'Ex2Ticket'` ... `:EndHold`.
 3. Start the work in a new thread: `Work&ticket job`. The `&` means "run this in a new thread", so `Submit` carries on at once.
 4. Return a namespace with the ticket number:
 
@@ -197,7 +196,7 @@ Check your work: each job gets its ticket in a few milliseconds, then the result
 
 ### S1. When the web hook can't be reached (stretch)
 
-Restart the servers if you stopped them (`(ticket callback)←Run 8081 8082`, or `'Solution' Run` if you're catching up), then stop just the callback server and submit jobs:
+Restart the servers if you stopped them (`(ticket callback)←Run2 8081 8082`, or `'Solution' Run2` if you're catching up), then stop just the callback server and submit jobs:
 
 ```apl
 callback.Stop
@@ -217,10 +216,10 @@ Web hooks are often combined with polling as a fallback. Add a `Status` endpoint
 
 ## Catching up
 
-If time is up or you're stuck, load the solution. `Run` stops the servers it started earlier:
+If time is up or you're stuck, load the solution. `Run2` stops the servers it started earlier:
 
 ```apl
-(ticket callback)←'Solution' Run 8081 8082
+(ticket callback)←'Solution' Run2 8081 8082
 Client 5
 ```
 

@@ -1,4 +1,4 @@
- servers←{which}Run ports;folder;names;spaces;fns;i;rc;msg
+ servers←{which}Run2 ports;folder;names;spaces;fns;i;rc;msg
 ⍝ Start the Exercise 2 servers on localhost: the ticket server and the callback server
 ⍝ which   - [optional] 'Start' (default) or 'Solution': the folder whose code is loaded
 ⍝ ports   - two port numbers: ticket server, callback server (the README uses 8081 8082)
@@ -7,10 +7,10 @@
 ⍝           the servers, not started, if one could not start (e.g. a port is in use): set .Port and run .Start
 ⍝ The ticket server's code is loaded into #.Ex2Ticket (from Ticket/, plus the supplied Factors.aplf)
 ⍝ and the callback server's into #.Ex2Callback (from Callback/). Edit with )ED, e.g. )ED #.Ex2Ticket.Submit;
-⍝ the servers use the change straight away. The servers are kept in #.Ex2Servers, so running Run again stops them first.
+⍝ the servers use the change straight away. The servers are kept in #.Ex2Servers, so running Run2 again stops them first.
 ⍝ Usage:
-⍝      (ticket callback)←Run 8081 8082
-⍝      (ticket callback)←'Solution' Run 8081 8082
+⍝      (ticket callback)←Run2 8081 8082
+⍝      (ticket callback)←'Solution' Run2 8081 8082
  servers←⍬
  :If 0=⎕NC'which'
      which←'Start'
@@ -25,7 +25,7 @@
      →0
  :EndIf
 
-⍝ Stop the servers from an earlier Run, if they are still running.
+⍝ Stop the servers from an earlier Run2, if they are still running.
 ⍝ On Linux, a second server on a port already used in the same session starts without an error, and the old one
 ⍝ keeps answering with the old code. On Windows the second server fails to start with "port in use". Either way, stop first.
  :If 0≠#.⎕NC'Ex2Servers' ⍝ a vector of two servers is a variable (name class 2), not a namespace
@@ -56,7 +56,7 @@
      (rc msg)←(i⊃servers).Start
      :If rc≠0
          ⎕←'Problem: could not start the ',(i⊃'ticket' 'callback'),' server: ',msg
-         ⎕←'If a port is in use, try others, for example: (ticket callback)←Run ',⍕ports+10
+         ⎕←'If a port is in use, try others, for example: (ticket callback)←Run2 ',⍕ports+10
          {}(servers/⍨servers.Running).Stop
          →0
      :EndIf

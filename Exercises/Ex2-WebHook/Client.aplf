@@ -1,13 +1,13 @@
  {r}←Client count;ports;s;h;i;job;res;t0;ok;deadline;Received
 ⍝ Submit count jobs to the ticket server, show each ticket coming back at once, then wait for the results
-⍝ Supplied: you don't need to change this. Start the servers with Run first.
+⍝ Supplied: you don't need to change this. Start the servers with Run2 first.
 ⍝ r - namespace: tickets (in the order submitted), ms (milliseconds each submission took),
 ⍝     received (tickets in the order their results arrived at the callback server)
 ⍝ Usage: Client 5
  r←⎕NS''
  r.(tickets ms received)←⍬ ⍬ ⍬
  :If 0=#.⎕NC'Ex2Servers' ⍝ a vector of two servers is a variable (name class 2), not a namespace
-     ⎕←'Problem: start the servers first, with Run'
+     ⎕←'Problem: start the servers first, with Run2'
      →0
  :EndIf
  ports←#.Ex2Servers.Port

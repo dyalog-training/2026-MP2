@@ -1,9 +1,9 @@
  Broadcast server;tick;clients;i;old;data
 ⍝ Every second, send every connected client a "price" event for each symbol, and every 5 seconds a "news" event
 ⍝ server - the Jarvis server
-⍝ Runs in its own thread, started by Run, until Stop sets Running to 0. Not an endpoint (see IncludeFns in Run).
-⍝ Symbols, Prices, Headlines, and Running are variables in this namespace (#.Ex3), set by Run.
-⍝ After editing this function, run Restart (not Run) so the loop uses your new code.
+⍝ Runs in its own thread, started by Run3, until Stop sets Running to 0. Not an endpoint (see IncludeFns in Run3).
+⍝ Symbols, Prices, Headlines, and Running are variables in this namespace (#.Ex3), set by Run3.
+⍝ After editing this function, run Restart (not Run3) so the loop uses your new code.
  tick←0
  :While Running
      ⎕DL 1

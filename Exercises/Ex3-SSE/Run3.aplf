@@ -1,4 +1,4 @@
- server←{which}Run port;folder;rc;msg
+ server←{which}Run3 port;folder;rc;msg
 ⍝ Start the Exercise 3 ticker service on localhost, and its broadcast loop
 ⍝ which  - [optional] 'Start' (default) or 'Solution': the folder whose code is loaded
 ⍝ port   - the port to listen on (the README uses 8083)
@@ -7,12 +7,12 @@
 ⍝          the Jarvis server, not started, if it could not start (e.g. the port is in use)
 ⍝ The code is loaded into #.Ex3: Ticker (called when a browser connects) and Broadcast (the loop).
 ⍝ Edit with )ED, e.g. )ED #.Ex3.Ticker; the server uses the change straight away. The running Broadcast loop
-⍝ keeps its old code, so after editing Broadcast, run Restart. (Running Run again would reload the code from the
+⍝ keeps its old code, so after editing Broadcast, run Restart. (Running Run3 again would reload the code from the
 ⍝ files and throw your edits away.)
-⍝ The web page is served from html/index.html. Run also loads the supplied Stop and Restart.
+⍝ The web page is served from html/index.html. Run3 also loads the supplied Stop and Restart.
 ⍝ Usage:
-⍝      server←Run 8083
-⍝      server←'Solution' Run 8083
+⍝      server←Run3 8083
+⍝      server←'Solution' Run3 8083
  server←⍬
  :If 0=⎕NC'which'
      which←'Start'
@@ -27,7 +27,7 @@
      →0
  :EndIf
 
-⍝ Stop the server and loop from an earlier Run, if they are still running.
+⍝ Stop the server and loop from an earlier Run3, if they are still running.
 ⍝ On Linux, a second server on a port already used in the same session starts without an error, and the old one
 ⍝ keeps answering with the old code. On Windows the second server fails to start with "port in use". Either way, stop first.
  {}{2 #.⎕FIX'file://',folder,⍵}¨'Stop.aplf' 'Restart.aplf'
@@ -56,7 +56,7 @@
  (rc msg)←server.Start
  :If rc≠0
      ⎕←'Problem: could not start the server: ',msg
-     ⎕←'If port ',(⍕port),' is in use, try another, for example: server←Run ',⍕port+10
+     ⎕←'If port ',(⍕port),' is in use, try another, for example: server←Run3 ',⍕port+10
      →0
  :EndIf
  #.Ex3Thread←#.Ex3.Broadcast&server ⍝ the broadcast loop runs in its own thread

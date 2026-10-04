@@ -1,16 +1,23 @@
- {ok}←{port}Setup root;t;c;j;r;rc;msg
-⍝ Load the workshop tools into # and check that they work
-⍝ root - the folder where the workshop materials were cloned or unpacked
+ {ok}←{port}Setup root;t;c;j;r;rc;msg;L
+⍝ Load the workshop tools into # and check that they work, and define Load for loading an exercise
+⍝ root - the folder where the workshop materials were cloned or unpacked, or '' for the folder above the
+⍝        Exercises folder this Setup was loaded from
 ⍝ port - [optional] port for the self-check server (default 8089)
 ⍝ ok   - 1 if everything is ready, 0 if a problem was found (the problem is printed)
 ⍝ Usage:
 ⍝      2 ⎕FIX 'file://<repo>/Exercises/Setup.aplf'
-⍝      Setup '<repo>'
+⍝      Setup ''           ⍝ or: Setup '<repo>'
+⍝      Load 1             ⍝ loads what Exercise 1 needs: Run1, which starts its server
  ok←0
  :If 0=⎕NC'port'
      port←8089
  :EndIf
 
+⍝ '': the folder above the Exercises folder that this Setup was loaded from (5179⌶ gives the file it came from)
+⍝ Taking the parent folder, not searching for "Exercises/", works even if a folder above is also called Exercises
+ :If 0∊⍴root
+     root←⊃1 ⎕NPARTS ¯1↓⊃1 ⎕NPARTS 4⊃5179⌶'Setup'
+ :EndIf
 ⍝ Use forward slashes on every platform and drop any trailing slash
  root←'/'@('\'∘=),root
  root↓⍨←-'/'=⊃⌽root
@@ -21,6 +28,25 @@
      →0
  :EndIf
  #.WorkshopRoot←root
+
+⍝ Define Load: Load n loads what Exercise n needs in the session into #
+ L←,⊂'{folder}←Load n;dirs;f'
+ L,←⊂'⍝ Load the files Exercise n (1 to 4) needs into #: its Run function (Run1 to Run4), and the supplied Client'
+ L,←⊂'⍝ (Exercise 2) or Chat (Exercise 4). The Run function loads everything else, such as the code for the service.'
+ L,←⊂'⍝ folder - [shy] the exercise''s folder, or '''' if there is no Exercise n'
+ L,←⊂' folder←'''''
+ L,←⊂' dirs←⊃0(⎕NINFO⍠1)#.WorkshopRoot,''/Exercises/Ex'',(⍕n),''-*'''
+ L,←⊂' :If 1≠≢dirs'
+ L,←⊂'     ⎕←''Problem: there is no Exercise '',⍕n'
+ L,←⊂'     →0'
+ L,←⊂' :EndIf'
+ L,←⊂' folder←⊃dirs'
+ L,←⊂' :For f :In (''Run'',(⍕n),''.aplf'')''Client.aplf'' ''Chat.apln'''
+ L,←⊂'     :If ⎕NEXISTS folder,''/'',f'
+ L,←⊂'         {}2 #.⎕FIX''file://'',folder,''/'',f'
+ L,←⊂'     :EndIf'
+ L,←⊂' :EndFor'
+ {}#.⎕FX L
 
 ⍝ Copy Conga into # first, so that every tool finds it without extra configuration
  :If 9≠⌊#.⎕NC⊂'Conga'

@@ -25,8 +25,8 @@ data: {"symbol":"IOTA","price":85.6,"change":0.1}
 The Jarvis features you'll use:
 
 | Feature | What it does |
-|---------|--------------|
-| `SSEEndpoints` | Names the endpoints that are event streams. `Run` sets it to `'Ticker'`, so a browser opening `/Ticker` gets a stream, and Jarvis calls your function `Ticker` once when it connects |
+|:--------|:-------------|
+| `SSEEndpoints` | Names the endpoints that are event streams. `Run3` sets it to `'Ticker'`, so a browser opening `/Ticker` gets a stream, and Jarvis calls your function `Ticker` once when it connects |
 | `server.FormatSSE` | Formats an event: `'price' server.FormatSSE data` gives the text above (data that isn't text is converted to JSON) |
 | `server.SSEConnections 'Ticker'` | The clients connected to `/Ticker` right now |
 | `clients server.SendSSE event` | Sends a formatted event to one or more clients |
@@ -36,7 +36,7 @@ You'll build a live price ticker. The web page, `html/index.html`, is supplied: 
 - `Ticker`: called when a client connects; sends that client a `welcome` event
 - `Broadcast`: a loop, running in its own thread, that sends every client a `price` event for each symbol every second, and a `news` event every 5 seconds
 
-`Run` sets up the data the loop uses, in `#.Ex3`: `Symbols` (`ALPHA`, `IOTA`, `OMEGA`, `RHO`), their `Prices`, some news `Headlines`, and `Running` (the loop runs while it's 1).
+`Run3` sets up the data the loop uses, in `#.Ex3`: `Symbols` (`ALPHA`, `IOTA`, `OMEGA`, `RHO`), their `Prices`, some news `Headlines`, and `Running` (the loop runs while it's 1).
 
 ## Getting started
 
@@ -44,13 +44,13 @@ If you haven't already, start Dyalog and run `Setup` (see [the workshop README](
 
 ```apl
 2 ⎕FIX 'file://<repo>/Exercises/Setup.aplf'
-Setup '<repo>'
+Setup ''
 ```
 
-Then load this exercise's `Run` function. From here on, every line can be pasted as is:
+Then load this exercise: `Load 3` loads its `Run3` function. From here on, every line can be pasted as is:
 
 ```apl
-2 ⎕FIX 'file://',#.WorkshopRoot,'/Exercises/Ex3-SSE/Run.aplf'
+Load 3
 ```
 
 ## Steps
@@ -58,10 +58,10 @@ Then load this exercise's `Run` function. From here on, every line can be pasted
 ### S1. Start the service (core)
 
 ```apl
-server←Run 8083
+server←Run3 8083
 ```
 
-`Run` also loads two supplied functions: `Stop`, which stops the loop and the server, and `Restart`, which you'll use in S3.
+`Run3` also loads two supplied functions: `Stop`, which stops the loop and the server, and `Restart`, which you'll use in S3.
 
 Open <http://localhost:8083> in your browser. The page shows **Connection: connected** but no prices yet, and your session shows `Ticker is not written yet: a client connected`. That's the starting version, waiting for you.
 
@@ -144,7 +144,7 @@ The loop, the one-second pause, and the `:Trap` are already there. Inside the `:
 Restart
 ```
 
-The loop that's already running keeps the code it started with, so editing `Broadcast` doesn't change it. `Restart` stops that loop and starts a new one with your edited `Broadcast`, leaving the server running. (Don't use `Run` for this: `Run` reloads the functions from the files and would throw your edits away.)
+The loop that's already running keeps the code it started with, so editing `Broadcast` doesn't change it. `Restart` stops that loop and starts a new one with your edited `Broadcast`, leaving the server running. (Don't use `Run3` for this: `Run3` reloads the functions from the files and would throw your edits away.)
 
 Check your work: within a couple of seconds, the table on the page fills with four symbols, and their prices change every second (green up, red down); a news item appears every 5 seconds. If you made a mistake, the session shows `Broadcast:` and the error each second: fix it with `)ED`, then `Restart` again.
 
@@ -181,10 +181,10 @@ Add a new kind of event, end to end:
 
 ## Catching up
 
-If time is up or you're stuck, load the solution. `Run` stops the earlier server and loop first:
+If time is up or you're stuck, load the solution. `Run3` stops the earlier server and loop first:
 
 ```apl
-server←'Solution' Run 8083
+server←'Solution' Run3 8083
 ```
 
 Changes you make with `)ED` live in your session; the files in `Start/` don't change. The finished versions are in `Solution/`.

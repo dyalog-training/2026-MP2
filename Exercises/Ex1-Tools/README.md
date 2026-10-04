@@ -17,13 +17,13 @@ If you haven't already, start Dyalog and run `Setup` (see [the workshop README](
 
 ```apl
 2 ⎕FIX 'file://<repo>/Exercises/Setup.aplf'
-Setup '<repo>'
+Setup ''
 ```
 
-Then load this exercise's `Run` function. From here on, every line can be pasted as is:
+Then load this exercise: `Load 1` loads its `Run1` function. From here on, every line can be pasted as is:
 
 ```apl
-2 ⎕FIX 'file://',#.WorkshopRoot,'/Exercises/Ex1-Tools/Run.aplf'
+Load 1
 ```
 
 ## Part A: HttpCommand and a public web service
@@ -31,7 +31,7 @@ Then load this exercise's `Run` function. From here on, every line can be pasted
 We use the [Official Joke API](https://official-joke-api.appspot.com/random_joke), which needs no sign-up or key. Its endpoints:
 
 | Endpoint | Returns |
-|----------|---------|
+|:---------|:--------|
 | `/random_joke` | one joke: `type`, `setup`, `punchline`, `id` |
 | `/types` | the joke types |
 | `/jokes/{type}/random` | a list holding one joke of that type |
@@ -57,6 +57,18 @@ r.Data
 - `Headers` are the response headers, as a two-column matrix
 - `Data` is the response body. Here it's JSON, as a character vector
 
+Entering `r` on its own doesn't list all of that. HttpCommand gives the result a display format (with `⎕DF`), a one-line summary like this:
+
+```
+[rc: 0 | msg:  | HTTP Status: 200 "OK" | ≢Data: 142]
+```
+
+- `rc` and `msg`: whether the request itself worked. `msg` is empty when `rc` is 0, and says what went wrong when it isn't
+- `HTTP Status`: the server's answer, as a number and a message
+- `≢Data`: the length of the body (here 142 characters; your joke will differ), or `1 (namespace)` once HttpCommand has converted JSON to APL for you (see A2)
+
+The summary is only how `r` is displayed: `r` is still a namespace, so use `r.Data`, `r.HttpStatus`, and so on to get at its contents.
+
 ### A2. Get APL data instead of JSON text (core)
 
 Create an HttpCommand instance and set `TranslateData` so that a JSON response is converted to a namespace:
@@ -65,9 +77,12 @@ Create an HttpCommand instance and set `TranslateData` so that a JSON response i
 h←HttpCommand.New 'get' 'https://official-joke-api.appspot.com/random_joke'
 h.TranslateData←1
 r←h.Run
+r
 r.Data.setup
 r.Data.punchline
 ```
+
+`r` now shows `≢Data: 1 (namespace)`: `Data` is a namespace holding the joke's fields.
 
 Run `r←h.Run` again for another joke.
 
@@ -122,7 +137,23 @@ h.URL←'jokes/999999' ⋄ r←h.Run
 r.(rc HttpStatus)
 ```
 
-Check your work: `rc` is 0, because the request worked, but `HttpStatus` is 404 (Not Found), because the server said no. Always check both. Exercise 2 relies on this.
+Check your work: `rc` is 0, because the request worked, but `HttpStatus` is 404 (Not Found), because the server said no. Always check both. Exercise 2 relies on this. Entering `r` shows both at a glance: `[rc: 0 | msg:  | HTTP Status: 404 "Not Found" | ≢Data: 43]`.
+
+To check both in one go, use `r.IsOK`: it is 1 when `rc` is 0 **and** `HttpStatus` is a success (200 to 299), and 0 otherwise:
+
+```apl
+r.IsOK
+```
+
+It's 0 here. Now try a request that fails, to a port where nothing is listening:
+
+```apl
+r←HttpCommand.Get 'http://localhost:8799/'
+r
+r.IsOK
+```
+
+This time `rc` isn't 0, `msg` says why (HttpCommand couldn't connect), there is no HTTP status at all, and `r.IsOK` is 0 again. When you only need to know whether a call worked, `r.IsOK` is enough; when it didn't, `rc`, `msg`, and `HttpStatus` tell you why.
 
 ### A5. More endpoints (stretch)
 
@@ -145,7 +176,7 @@ Your service has two endpoints, in `#.Ex1`:
 ### B1. Start the service (core)
 
 ```apl
-server←Run 8080
+server←Run1 8080
 ```
 
 Jarvis prints a few log lines as it starts. One says `Click http://...:8080 to access web interface`, with your machine's network address; that works too, but use `localhost` as shown here. (The network address is a reminder that the server can be reached from your network: stop it when you're done, as in B6.)
@@ -271,7 +302,7 @@ If time is up or you're stuck, load the solution:
 
 ```apl
 server.Stop
-server←'Solution' Run 8080
+server←'Solution' Run1 8080
 ```
 
 Changes you make with `)ED` live in your session; the files in `Start/` don't change. The finished versions are in `Solution/`.

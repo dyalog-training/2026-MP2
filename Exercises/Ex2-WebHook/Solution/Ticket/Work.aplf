@@ -1,6 +1,6 @@
  Work(ticket job);seconds;payload;r
 ⍝ Do the work for one ticket, then post the result to the job's callback URL: this is the web hook
-⍝ Runs in its own thread, started by Submit. Not an endpoint (see IncludeFns in Run).
+⍝ Runs in its own thread, started by Submit. Not an endpoint (see IncludeFns in Run2).
 ⍝ Everything is inside :Trap, because nothing else catches an error in this thread:
 ⍝ untrapped, it would suspend the thread (in a session) or stop APL (in a script), and the client would never know
  :Trap 0

@@ -1,6 +1,6 @@
  Stop;t
 ⍝ Stop the Exercise 3 broadcast loop and server (supplied: you don't need to change this)
-⍝ Run loads this function; Run also calls it if the server from an earlier Run is still running.
+⍝ Run3 loads this function; Run3 also calls it if the server from an earlier Run3 is still running.
 ⍝ Usage: Stop
  :If 9=⌊#.⎕NC'Ex3'
      #.Ex3.Running←0 ⍝ Broadcast checks this every time round its loop

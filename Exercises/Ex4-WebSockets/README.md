@@ -13,17 +13,17 @@
 
 In Exercise 3, the server pushed events, but the browser could only listen. A **WebSocket** is a two-way connection: it starts as an ordinary HTTP request that asks to "upgrade", and once the server agrees, either side can send a message at any time until one of them closes it. That's what you need for a chat: everyone sends, and everyone receives.
 
-Jarvis supports WebSockets through settings that `Run` makes for you, and three **hook** functions that you write, in `#.Ex4`:
+Jarvis supports WebSockets through settings that `Run4` makes for you, and three **hook** functions that you write, in `#.Ex4`:
 
 | Jarvis setting | Your function | Jarvis calls it when |
-|----------------|---------------|----------------------|
+|:---------------|:--------------|:---------------------|
 | `OnWsUpgradeFn` | `Connect ns` | a client opens a WebSocket |
 | `OnWsReceiveFn` | `Receive msg` | a client sends a message |
 | `OnWsCloseFn` | `Disconnect ns` | a connection closes |
 
 `ns` is the connection's namespace: `ns.conx` is the connection's **name**, and `ns.Server` is the Jarvis server. In `Receive`, `msg.Payload` is the text the client sent, and `msg.##` is the connection's namespace. All three hooks must return a result: 0 means "carry on"; anything else from `Connect` or `Receive` closes the connection.
 
-To send, use the server's `WsSend`: `names server.WsSend data` sends `data` (a namespace is sent as JSON) to one or more connections, given by name. Keep a list of the names in `Clients`, a variable in `#.Ex4` that `Run` sets to `⍬`. (Use the names, not the connection namespaces: `WsSend` accepts one namespace, but not a list of them.)
+To send, use the server's `WsSend`: `names server.WsSend data` sends `data` (a namespace is sent as JSON) to one or more connections, given by name. Keep a list of the names in `Clients`, a variable in `#.Ex4` that `Run4` sets to `⍬`. (Use the names, not the connection namespaces: `WsSend` accepts one namespace, but not a list of them.)
 
 Everything sent is JSON. The page sends `{"type":"join","user":"Ada"}` when you join, and `{"type":"msg","text":"Hello"}` for each message. Your server sends each one on to everyone, adding the sender's name and the time: `{"type":"msg","user":"Ada","text":"Hello","time":"14:05:12"}`.
 
@@ -35,13 +35,13 @@ If you haven't already, start Dyalog and run `Setup` (see [the workshop README](
 
 ```apl
 2 ⎕FIX 'file://<repo>/Exercises/Setup.aplf'
-Setup '<repo>'
+Setup ''
 ```
 
-Then load this exercise's `Run` function. From here on, every line can be pasted as is:
+Then load this exercise: `Load 4` loads its `Run4` function and the supplied `Chat` namespace, which you'll use in W5. From here on, every line can be pasted as is:
 
 ```apl
-2 ⎕FIX 'file://',#.WorkshopRoot,'/Exercises/Ex4-WebSockets/Run.aplf'
+Load 4
 ```
 
 ## Steps
@@ -49,7 +49,7 @@ Then load this exercise's `Run` function. From here on, every line can be pasted
 ### W1. Start the chat server (core)
 
 ```apl
-server←Run 8084
+server←Run4 8084
 ```
 
 Open <http://localhost:8084> in your browser, type a name, and click **Join**. The page shows `Error: Receive is not written yet`: the starting version replies to every message with that error.
@@ -136,10 +136,9 @@ Check your work: click **Leave** in one tab, or close it. The other tab shows ".
 
 ### W5. Join from APL (core)
 
-The supplied `Chat` namespace is a chat client written with **WebSocketClient**:
+The supplied `Chat` namespace, which `Load 4` loaded, is a chat client written with **WebSocketClient**:
 
 ```apl
-⎕FIX 'file://',#.WorkshopRoot,'/Exercises/Ex4-WebSockets/Chat.apln'
 Chat.Join 'APL'
 Chat.Say 'Hello from APL'
 ```
@@ -193,10 +192,10 @@ Write a second `Chat`-style client (copy `Chat.apln` under a new name) whose `Sh
 
 ## Catching up
 
-If time is up or you're stuck, load the solution. `Run` stops the earlier server first:
+If time is up or you're stuck, load the solution. `Run4` stops the earlier server first:
 
 ```apl
-server←'Solution' Run 8084
+server←'Solution' Run4 8084
 ```
 
 Then click **Join** again in each tab, and `Chat.Join 'APL'` again in APL: restarting the server closes every connection.

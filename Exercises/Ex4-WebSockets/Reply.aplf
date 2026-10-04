@@ -1,5 +1,5 @@
  ns Reply text;out
-⍝ Send an error message to one connection only (supplied: Run loads it into #.Ex4)
+⍝ Send an error message to one connection only (supplied: Run4 loads it into #.Ex4)
 ⍝ ns   - the connection's namespace (in Receive, that's msg.##)
 ⍝ text - the message; the client gets {"type":"error","text":"..."}
  out←⎕NS''
