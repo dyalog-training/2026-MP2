@@ -1,0 +1,11 @@
+ r←Receive msg;ns;in;type;user;text;out
+⍝ Jarvis calls this for each message a client sends
+⍝ msg - namespace with Payload (the text received), DataType, and Complete; msg.## is the connection's namespace
+⍝ Messages are JSON:   {"type":"join","user":"Ada"}   or   {"type":"msg","text":"Hello"}
+⍝ Each is sent on to everyone with the sender's name and the time:
+⍝   {"type":"join","user":"Ada","time":"14:05:09"}   {"type":"msg","user":"Ada","text":"Hello","time":"14:05:12"}
+⍝ Anything else gets an error reply to the sender only: ns Reply 'what went wrong'
+⍝ r   - 0 to keep the connection open (anything else closes it)
+⍝ Step W3: replace the two lines below with your code (keep r←0)
+ r←0
+ msg.## Reply'Receive is not written yet'

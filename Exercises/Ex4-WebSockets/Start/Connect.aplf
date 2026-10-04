@@ -1,0 +1,7 @@
+ r←Connect ns
+⍝ Jarvis calls this when a client opens a WebSocket connection
+⍝ ns - the connection's namespace: ns.conx is the connection's name, ns.Server is the Jarvis server
+⍝ r  - 0 to accept the connection (anything else closes it)
+⍝ Record the connection's name in Clients, so that Receive can send messages to everyone
+⍝ Step W2: add your code above the line below
+ r←0

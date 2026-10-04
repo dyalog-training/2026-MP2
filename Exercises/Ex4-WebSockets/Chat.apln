@@ -1,0 +1,106 @@
+:Namespace Chat
+⍝ An APL client for the Exercise 4 chat, using WebSocketClient (supplied: you don't need to change this)
+⍝ Usage:
+⍝      2 ⎕FIX 'file://',#.WorkshopRoot,'/Exercises/Ex4-WebSockets/Chat.apln'
+⍝      Chat.Join 'Ada'     ⍝ connect to ws://localhost:8084/chat and join as Ada
+⍝      Chat.Say 'Hello'    ⍝ send a message; every message that arrives is printed in the session
+⍝      Chat.Leave          ⍝ disconnect
+⍝ 8094 Chat.Join 'Ada' connects to another port.
+
+    (⎕IO ⎕ML)←1 1
+    Client←⍬    ⍝ the WebSocketClient instance, once joined
+    Messages←⍬  ⍝ every message received since joining, as namespaces, oldest first
+
+    ∇ {ok}←{port}Join name;s;c;rc;msg;j
+    ⍝ Connect to the chat server and join as name
+    ⍝ ok - 1 if joined, 0 if there was a problem (the problem is printed)
+      ok←0
+      :If 0=⎕NC'port'
+          port←8084
+      :EndIf
+      Leave ⍝ in case we're already connected
+    ⍝ Create the client from a namespace of settings.
+    ⍝ OnWSReceive names the function WebSocketClient calls for each message; it must be dyadic (see ShowMessage)
+    ⍝ WaitTime (ms) is how long the listener waits at a time; Close waits for it, so a short WaitTime makes Leave quick
+      s←⎕NS''
+      s.(URL OnWSReceive WaitTime)←('ws://localhost:',(⍕port),'/chat')'#.Chat.ShowMessage' 1000
+      c←#.WebSocketClient.New s
+    ⍝ v20: c←#.WebSocketClient.New (URL: 'ws://localhost:',(⍕port),'/chat' ⋄ OnWSReceive: '#.Chat.ShowMessage' ⋄ WaitTime: 1000)
+      :If 0≠c.rc ⍝ New reports problems (e.g. a misspelled setting gives rc ¯11) instead of signalling an error
+          ⎕←'Problem: could not create the client: ',c.msg
+          →0
+      :EndIf
+      (rc msg)←c.Connect
+      :If rc≠0
+          ⎕←'Problem: could not connect to ',c.URL,': ',msg
+          ⎕←'Is the chat server running? Start it with: server←Run ',⍕port
+          →0
+      :EndIf
+      Client←c
+      Messages←⍬
+      j←⎕NS''
+      j.(type user)←'join'name
+    ⍝ v20: j←(type: 'join' ⋄ user: name)
+      ok←Send j
+    ∇
+
+    ∇ {ok}←Say text;j
+    ⍝ Send a message to everyone in the chat
+      j←⎕NS''
+      j.(type text)←'msg'text
+    ⍝ v20: j←(type: 'msg' ⋄ text: text)
+      ok←Send j
+    ∇
+
+    ∇ Leave
+    ⍝ Disconnect from the chat (the server tells everyone else you left)
+      :If 9=⌊⎕NC'Client'
+          {}Client.Close
+          Client←⍬
+      :EndIf
+    ∇
+
+    ∇ ok←Send j;rc;msg
+    ⍝ Send a namespace to the server as JSON
+      ok←0
+      :If 9≠⌊⎕NC'Client'
+          ⎕←'Problem: not connected; use Chat.Join first'
+          →0
+      :EndIf
+      (rc msg)←Client.Send 1 ⎕JSON j
+      :If rc≠0
+          ⎕←'Problem: could not send: ',msg
+          →0
+      :EndIf
+      ok←1
+    ∇
+
+    ∇ client ShowMessage message;m
+    ⍝ WebSocketClient calls this for each message received. It must be DYADIC:
+    ⍝ client  - the WebSocketClient instance that received the message
+    ⍝ message - namespace with buffer (the text received so far) and final (1 when the message is complete)
+    ⍝ A monadic function here fails in WebSocketClient's listener thread, which silently closes the connection.
+      :If message.final=1
+          m←{0::⍬ ⋄ ⎕JSON ⍵}message.buffer
+          :If 9=⌊⎕NC'm'
+              Messages,←m
+              ⎕←Format m
+          :Else
+              ⎕←'Received: ',message.buffer
+          :EndIf
+      :EndIf
+    ∇
+
+    ∇ r←Format m;Get
+    ⍝ One line of text for a message from the server, as the web page shows it
+      Get←{6::'' ⋄ ⍵⍎⍺} ⍝ 'field' Get m, or '' if missing
+      :Select 'type'Get m
+      :Case 'msg' ⋄ r←('time'Get m),' ',('user'Get m),': ',('text'Get m)
+      :Case 'join' ⋄ r←('time'Get m),' ',('user'Get m),' joined'
+      :Case 'leave' ⋄ r←('time'Get m),' ',('user'Get m),' left'
+      :Case 'error' ⋄ r←'Error: ',('text'Get m)
+      :Else ⋄ r←1 ⎕JSON m
+      :EndSelect
+    ∇
+
+:EndNamespace

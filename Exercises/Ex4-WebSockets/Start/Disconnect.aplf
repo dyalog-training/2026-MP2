@@ -1,0 +1,7 @@
+ r←Disconnect ns;out
+⍝ Jarvis calls this when a WebSocket connection closes
+⍝ ns - the connection's namespace (the same one Connect and Receive saw)
+⍝ r  - Jarvis requires a result; it is not used
+⍝ Forget the connection, and if the user had joined (ns.User exists), tell everyone else they left
+⍝ Step W4: add your code above the line below
+ r←0
