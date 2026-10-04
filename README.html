@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc 3.12" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>2026-MP2</title>
+  <title>Asynchronous Services</title>
   <style>
 
 span.smallcaps{font-variant: small-caps;}
@@ -31,9 +31,141 @@ vertical-align: middle;
 <div class="md-main">
 <div class="md-main__inner md-grid">
 <div class="md-content">
-<section id="2026-mp2" class="md-content__inner md-typeset">
-<h1>2026-MP2</h1>
-<p>Asynchronous Services</p>
+<section id="asynchronous-services" class="md-content__inner md-typeset">
+<h1>Asynchronous Services</h1>
+<p>Workshop materials for <strong>Asynchronous Services</strong>,
+presented by Brian Becker and Holden Hoover at the Dyalog26 User Meeting
+on 12 October 2026.</p>
+<p>Most web requests make the client wait for the answer. In this
+workshop you build services in Dyalog APL that don&#39;t: a service that
+calls you back when the work is done (a <strong>web hook</strong>), one
+that streams live updates to a web page (<strong>Server-Sent
+Events</strong>), and a chat service where both sides talk whenever they
+like (<strong>WebSockets</strong>). You use three open-source tools from
+Dyalog:</p>
+<ul>
+<li><strong><a href="https://dyalog.github.io/HttpCommand">HttpCommand</a></strong>: an
+HTTP client, for calling web services from APL</li>
+<li><strong><a href="https://dyalog.github.io/Jarvis">Jarvis</a></strong>: a web
+service framework, for writing web services in APL</li>
+<li><strong><a href="https://dyalog.github.io/WebSocketClient/">WebSocketClient</a></strong>:
+a WebSocket client, for two-way messaging from APL</li>
+</ul>
+<p>No experience with these tools is needed, and you don&#39;t need to know
+HTML, CSS, or JavaScript: the web pages are supplied.</p>
+<h2 id="getting-started">Getting started</h2>
+<p>You need <strong>Dyalog APL 19.0 or later</strong> (Windows, macOS,
+or Linux) and a web browser.</p>
+<ol type="1">
+<li><p>Download this repository (<strong>Code</strong>, then
+<strong>Download ZIP</strong>, and unpack it) or clone it:</p>
+<pre><code>git clone https://github.com/dyalog-training/2026-MP2.git</code></pre></li>
+<li><p>Start Dyalog APL and enter these two lines, replacing
+<code>&lt;repo&gt;</code> with the folder you unpacked or cloned into
+(forward slashes work on every platform):</p>
+<pre class="apl"><code>2 ⎕FIX &#39;file://&lt;repo&gt;/Exercises/Setup.aplf&#39;
+Setup &#39;&#39;</code></pre>
+<p><code>Setup</code> loads the tools and checks that a web service can
+run on your machine. When it prints <code>Ready</code>, you&#39;re all
+set.</p></li>
+<li><p>Load an exercise and follow its README, for example:</p>
+<pre class="apl"><code>Load 1
+server←Run1 8080</code></pre></li>
+</ol>
+<p>The <a href="Exercises/README.html">workshop README</a> has the full
+instructions, the schedule, and troubleshooting. Please run
+<code>Setup</code> before the workshop, so any problems can be sorted
+out early.</p>
+<h2 id="the-exercises">The exercises</h2>
+<p>Each exercise takes 30 minutes and follows a short talk. Steps marked
+<strong>core</strong> fit in that time; steps marked
+<strong>stretch</strong> are for finishing early or continuing
+afterwards.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Exercise</th>
+<th style="text-align: left;">What you build</th>
+<th style="text-align: left;">Tools</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="Exercises/Ex1-Tools/README.html">1: Introducing the tools</a></td>
+<td style="text-align: left;">Call a public web service, then write your
+own Jarvis service and call it from your browser and from APL</td>
+<td style="text-align: left;">HttpCommand, Jarvis</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="Exercises/Ex2-WebHook/README.html">2: Web hook</a></td>
+<td style="text-align: left;">A service that gives out tickets at once,
+does the work in a separate thread, and calls the client back with each
+result</td>
+<td style="text-align: left;">HttpCommand, Jarvis</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="Exercises/Ex3-SSE/README.html">3:
+Server-Sent Events</a></td>
+<td style="text-align: left;">A live price ticker that pushes updates
+from APL to every connected browser</td>
+<td style="text-align: left;">Jarvis</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="Exercises/Ex4-WebSockets/README.html">4: WebSockets</a></td>
+<td style="text-align: left;">A chat server, used from two browser tabs
+and from APL</td>
+<td style="text-align: left;">Jarvis, WebSocketClient</td>
+</tr>
+</tbody>
+</table>
+<p>Every exercise has a <code>Start/</code> folder (most of the code is
+supplied; you write a few short functions) and a <code>Solution/</code>
+folder. If you fall behind, load the solution and carry on: no exercise
+depends on your own code from an earlier one.</p>
+<p>All the code runs on Dyalog 19.0. Where Dyalog 20 offers a neater way
+to write something (array notation, <code>⎕VGET</code>,
+<code>⎕VSET</code>), the READMEs show both versions.</p>
+<h2 id="whats-in-this-repository">What&#39;s in this repository</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Folder</th>
+<th style="text-align: left;">Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>Exercises/</code></td>
+<td style="text-align: left;"><code>Setup.aplf</code>, the workshop
+README, and one folder per exercise</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Source/</code></td>
+<td style="text-align: left;">The tools, in the versions the exercises
+were written for: HttpCommand 5.11.2, Jarvis 1.23.1, and WebSocketClient
+1.0.1 (a version that runs on Dyalog 19.0)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Presentation/</code></td>
+<td style="text-align: left;">The slides for the talks (PowerPoint)</td>
+</tr>
+</tbody>
+</table>
+<p>Each Markdown file has an <code>.html</code> copy next to it, for
+reading in a browser.</p>
+<p>Everything runs on your own machine, on <code>localhost</code>. The
+only exception is the first part of Exercise 1, which calls a public web
+service (<a href="https://official-joke-api.appspot.com">Official Joke
+API</a>); its README has an offline alternative.</p>
+<h2 id="documentation">Documentation</h2>
+<ul>
+<li>HttpCommand: <a href="https://dyalog.github.io/HttpCommand">https://dyalog.github.io/HttpCommand</a></li>
+<li>Jarvis: <a href="https://dyalog.github.io/Jarvis">https://dyalog.github.io/Jarvis</a></li>
+<li>WebSocketClient: <a href="https://dyalog.github.io/WebSocketClient/">https://dyalog.github.io/WebSocketClient/</a></li>
+<li>Dyalog documentation: <a href="https://docs.dyalog.com">https://docs.dyalog.com</a></li>
+</ul>
+<h2 id="licence">Licence</h2>
+<p><a href="LICENSE">MIT</a></p>
 </section>
 </div>
 </div>
