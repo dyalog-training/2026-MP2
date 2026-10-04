@@ -1,0 +1,7 @@
+ Ticker req
+⍝ Jarvis calls this once, when a client (such as the web page) connects to the /Ticker event stream
+⍝ req - the request; req.Server is the Jarvis server, and req identifies this client's connection
+⍝ Send just this client a "welcome" event with data {"text":"..."}. Broadcast sends the price and news events to everyone.
+⍝ Return no result (or 0) to keep the connection open
+⍝ Step S2: replace the line below with your code
+ ⎕←'Ticker is not written yet: a client connected'

@@ -1,0 +1,16 @@
+ Broadcast server;tick;clients;i;old;data
+⍝ Every second, send every connected client a "price" event for each symbol, and every 5 seconds a "news" event
+⍝ server - the Jarvis server
+⍝ Runs in its own thread, started by Run, until Stop sets Running to 0. Not an endpoint (see IncludeFns in Run).
+⍝ Symbols, Prices, Headlines, and Running are variables in this namespace (#.Ex3), set by Run.
+⍝ After editing this function, run Restart (not Run) so the loop uses your new code.
+ tick←0
+ :While Running
+     ⎕DL 1
+     tick+←1
+     :Trap 0 ⍝ nothing else catches an error in this thread: report it and carry on
+⍝ Step S3: write your code here. The README step S3 has the pieces you need.
+     :Else
+         ⎕←'Broadcast: ',⎕DMX.EM,(0<≢⎕DMX.Message)/': ',⎕DMX.Message
+     :EndTrap
+ :EndWhile
