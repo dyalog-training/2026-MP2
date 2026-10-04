@@ -1,0 +1,20 @@
+ Stop;t
+⍝ Stop the Exercise 3 broadcast loop and server (supplied: you don't need to change this)
+⍝ Run loads this function; Run also calls it if the server from an earlier Run is still running.
+⍝ Usage: Stop
+ :If 9=⌊#.⎕NC'Ex3'
+     #.Ex3.Running←0 ⍝ Broadcast checks this every time round its loop
+ :EndIf
+⍝ Wait up to 3 seconds for the loop's thread to end, then stop it anyway
+ :If 2=#.⎕NC'Ex3Thread'
+     t←⎕AI[3]+3000
+     :While (#.Ex3Thread∊⎕TNUMS)∧⎕AI[3]<t
+         ⎕DL 0.1
+     :EndWhile
+     ⎕TKILL #.Ex3Thread∩⎕TNUMS
+ :EndIf
+ :If 9=⌊#.⎕NC'Ex3Server'
+ :AndIf #.Ex3Server.Running
+     {}#.Ex3Server.Stop
+ :EndIf
+ ⎕←'Exercise 3 stopped'

@@ -1,0 +1,24 @@
+ Restart;t
+⍝ Restart the broadcast loop with the current #.Ex3.Broadcast, keeping the server running (supplied: you don't need to change this)
+⍝ Use it after editing Broadcast with )ED: the loop that is already running keeps its old code until it is restarted.
+⍝ Don't use Run for this: Run reloads the code from the files, which would throw away your edits.
+⍝ Run loads this function.
+⍝ Usage: Restart
+ :If 9≠⌊#.⎕NC'Ex3Server'
+ :OrIf ~#.Ex3Server.Running
+     ⎕←'Problem: the server is not running; start it with Run'
+     →0
+ :EndIf
+⍝ End the current loop: Broadcast checks Running every time round. Wait up to 3 seconds, then stop it anyway
+ #.Ex3.Running←0
+ :If 2=#.⎕NC'Ex3Thread'
+     t←⎕AI[3]+3000
+     :While (#.Ex3Thread∊⎕TNUMS)∧⎕AI[3]<t
+         ⎕DL 0.1
+     :EndWhile
+     ⎕TKILL #.Ex3Thread∩⎕TNUMS
+ :EndIf
+⍝ Start the loop again, with the Broadcast that is defined now
+ #.Ex3.Running←1
+ #.Ex3Thread←#.Ex3.Broadcast&#.Ex3Server
+ ⎕←'Broadcast loop restarted with the current code'

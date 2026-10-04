@@ -1,0 +1,29 @@
+ Broadcast server;tick;clients;i;old;data
+⍝ Every second, send every connected client a "price" event for each symbol, and every 5 seconds a "news" event
+⍝ server - the Jarvis server
+⍝ Runs in its own thread, started by Run, until Stop sets Running to 0. Not an endpoint (see IncludeFns in Run).
+⍝ Symbols, Prices, Headlines, and Running are variables in this namespace (#.Ex3), set by Run.
+ tick←0
+ :While Running
+     ⎕DL 1
+     tick+←1
+     :Trap 0 ⍝ nothing else catches an error in this thread: report it and carry on
+         clients←server.SSEConnections'Ticker' ⍝ everyone connected to /Ticker right now
+         :For i :In ⍳≢Symbols
+             old←i⊃Prices
+             Prices[i]←0.01×⌊0.5+old×100+0.01×¯101+?201 ⍝ move by up to 1% either way, rounded to cents
+             data←⎕NS''
+             data.(symbol price change)←(i⊃Symbols)(i⊃Prices)(0.01×⌊0.5+100×(i⊃Prices)-old)
+⍝ v20: data←⎕NS'' ⋄ data ⎕VSET ('symbol' (i⊃Symbols))('price' (i⊃Prices))('change' (0.01×⌊0.5+100×(i⊃Prices)-old))
+             clients server.SendSSE'price'server.FormatSSE data
+         :EndFor
+         :If 0=5|tick
+             data←⎕NS''
+             data.text←(?≢Headlines)⊃Headlines
+⍝ v20: data←(text: (?≢Headlines)⊃Headlines)
+             clients server.SendSSE'news'server.FormatSSE data
+         :EndIf
+     :Else
+         ⎕←'Broadcast: ',⎕DMX.EM,(0<≢⎕DMX.Message)/': ',⎕DMX.Message
+     :EndTrap
+ :EndWhile

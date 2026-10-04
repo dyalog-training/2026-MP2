@@ -1,0 +1,9 @@
+ Ticker req;data
+⍝ Jarvis calls this once, when a client (such as the web page) connects to the /Ticker event stream
+⍝ req - the request; req.Server is the Jarvis server, and req identifies this client's connection
+⍝ Sends just this client a "welcome" event. Broadcast sends the price and news events to everyone.
+⍝ Return no result (or 0) to keep the connection open
+ data←⎕NS''
+ data.text←'Welcome to the APL ticker: prices update every second'
+⍝ v20: data←(text: 'Welcome to the APL ticker: prices update every second')
+ req req.Server.SendSSE'welcome'req.Server.FormatSSE data

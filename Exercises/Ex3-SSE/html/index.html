@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>APL Ticker</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 2em auto; max-width: 40em; padding: 0 1em; color: #222; }
+  h1 { margin-bottom: 0.2em; }
+  #status { font-weight: bold; }
+  #status.connected { color: #1a7f37; }
+  #status.reconnecting { color: #b42318; }
+  #welcome { color: #555; font-style: italic; }
+  table { border-collapse: collapse; margin: 1em 0; }
+  th, td { padding: 0.3em 1em; border-bottom: 1px solid #ddd; text-align: right; font-variant-numeric: tabular-nums; }
+  th:first-child, td:first-child { text-align: left; }
+  .up { color: #1a7f37; }
+  .down { color: #b42318; }
+  #log { list-style: none; padding: 0; }
+  #log li { padding: 0.2em 0; border-bottom: 1px solid #eee; }
+  #log .time { color: #888; margin-right: 0.5em; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<h1>APL Ticker</h1>
+<p>Connection: <span id="status">connecting...</span></p>
+<p id="welcome"></p>
+
+<table>
+  <thead><tr><th>Symbol</th><th>Price</th><th>Change</th></tr></thead>
+  <tbody id="prices"></tbody>
+</table>
+
+<h2>News</h2>
+<ul id="log"></ul>
+
+<script>
+// Exercise 3: this page is supplied. You only need to change the EDIT HERE section below.
+// It connects to the /Ticker event stream on the server that served this page.
+// Each event the server sends has a type (the "event:" line) and data (here, JSON).
+
+const source = new EventSource("/Ticker");
+
+// The browser reconnects by itself if the connection drops; these show what is happening.
+source.onopen = function () { setStatus("connected", "connected"); };
+source.onerror = function () { setStatus("reconnecting...", "reconnecting"); };
+
+// "welcome" events: sent by Ticker, just to this page, when it connects. Data: {"text": "..."}
+source.addEventListener("welcome", function (e) {
+  const data = JSON.parse(e.data);
+  document.getElementById("welcome").textContent = data.text;
+});
+
+// "price" events: sent by Broadcast every second. Data: {"symbol": "IOTA", "price": 85.6, "change": 0.1}
+source.addEventListener("price", function (e) {
+  const data = JSON.parse(e.data);
+  updatePrice(data.symbol, data.price, data.change);
+});
+
+// "news" events: sent by Broadcast every 5 seconds. Data: {"text": "..."}
+source.addEventListener("news", function (e) {
+  const data = JSON.parse(e.data);
+  addToLog(data.text);
+});
+
+// ===== EDIT HERE ==========================================================
+// To handle a new event type, copy the three lines below, remove the // at the
+// start of each, and change "myevent" to your event's type. Here, the event's
+// data is shown in the News list. Then send events of that type from APL, e.g.
+//   clients server.SendSSE 'myevent' server.FormatSSE data
+//
+// source.addEventListener("myevent", function (e) {
+//   addToLog("myevent: " + e.data);
+// });
+// ===== END OF EDIT HERE ===================================================
+
+// ---- Helpers: you don't need to change anything below this line ----
+
+function setStatus(text, className) {
+  const status = document.getElementById("status");
+  status.textContent = text;
+  status.className = className;
+}
+
+function updatePrice(symbol, price, change) {
+  let row = document.getElementById("row-" + symbol);
+  if (!row) { // first price for this symbol: add a row
+    row = document.createElement("tr");
+    row.id = "row-" + symbol;
+    for (let i = 0; i < 3; i++) row.appendChild(document.createElement("td"));
+    row.cells[0].textContent = symbol;
+    document.getElementById("prices").appendChild(row);
+  }
+  row.cells[1].textContent = Number(price).toFixed(2);
+  row.cells[2].textContent = (change > 0 ? "+" : "") + Number(change).toFixed(2);
+  row.cells[2].className = change > 0 ? "up" : change < 0 ? "down" : "";
+}
+
+function addToLog(text) {
+  const log = document.getElementById("log");
+  const item = document.createElement("li");
+  const time = document.createElement("span");
+  time.className = "time";
+  time.textContent = new Date().toLocaleTimeString();
+  item.appendChild(time);
+  item.appendChild(document.createTextNode(text));
+  log.insertBefore(item, log.firstChild); // newest first
+  while (log.children.length > 20) log.removeChild(log.lastChild);
+}
+</script>
+</body>
+</html>
