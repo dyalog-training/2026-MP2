@@ -1,0 +1,5 @@
+ r←Sum numbers
+⍝ Return the total and count of a list of numbers, e.g. [1,2,3] gives {"count":3,"total":6}
+⍝ numbers is the request's JSON array, already converted to an APL vector
+⍝ Step B3: replace the line below with your code
+ r←'Sum is not written yet'

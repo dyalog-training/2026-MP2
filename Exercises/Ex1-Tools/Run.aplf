@@ -1,0 +1,49 @@
+ server←{which}Run port;folder;rc;msg
+⍝ Start the Exercise 1 service on localhost
+⍝ which  - [optional] 'Start' (default) or 'Solution': the folder whose endpoint files are loaded
+⍝ port   - the port to listen on (the README uses 8080)
+⍝ server - the Jarvis server; stop it with server.Stop
+⍝          ⍬ if Setup has not been run or the folder does not exist
+⍝          the Jarvis server, not started, if it could not start (e.g. the port is in use): set server.Port and run server.Start
+⍝ The endpoints are loaded into #.Ex1. Edit one with )ED #.Ex1.Hello and the server uses the change straight away.
+⍝ The server is also kept in #.Ex1Server, so that running Run again stops it first.
+⍝ Usage:
+⍝      server←Run 8080
+⍝      server←'Solution' Run 8080
+ server←⍬
+ :If 0=⎕NC'which'
+     which←'Start'
+ :EndIf
+ :If 0=#.⎕NC'WorkshopRoot'
+     ⎕←'Problem: run Setup first (see Exercises/README.md)'
+     →0
+ :EndIf
+ folder←#.WorkshopRoot,'/Exercises/Ex1-Tools/',which
+ :If ~⎕NEXISTS folder
+     ⎕←'Problem: no folder "',folder,'"; use ''Start'' or ''Solution'''
+     →0
+ :EndIf
+
+⍝ Stop the server from an earlier Run, if it is still running.
+⍝ Two servers on the same port in one session do not report an error, and the old one would keep answering with the old code.
+ :If 9=⌊#.⎕NC'Ex1Server'
+ :AndIf #.Ex1Server.Running
+     {}#.Ex1Server.Stop
+     ⎕←'Stopped the Exercise 1 server that was already running'
+ :EndIf
+
+⍝ Load every endpoint function from the folder into a fresh #.Ex1
+ #.⎕EX'Ex1'
+ 'Ex1'#.⎕NS''
+ {}{2 #.Ex1.⎕FIX'file://',⍵}¨⊃0(⎕NINFO⍠1)folder,'/*.aplf'
+
+ server←#.Jarvis.New''
+ #.Ex1Server←server
+ server.(Port CodeLocation DYALOG_JARVIS_THREAD)←port #.Ex1 'DEBUG' ⍝ DEBUG: run in the background, keep the session usable
+ (rc msg)←server.Start
+ :If rc≠0
+     ⎕←'Problem: could not start the server: ',msg
+     ⎕←'If port ',(⍕port),' is in use, try another, for example: server←Run ',⍕port+10
+     →0
+ :EndIf
+ ⎕←'Exercise 1 service (',which,') is running: open http://localhost:',(⍕port),' in your browser'

@@ -1,0 +1,5 @@
+ r←Sum numbers
+⍝ Return the total and count of a list of numbers, e.g. [1,2,3] gives {"count":3,"total":6}
+ r←⎕NS''
+ r.(total count)←(+/numbers)(≢numbers)
+⍝ v20: r←(total: +/numbers ⋄ count: ≢numbers)

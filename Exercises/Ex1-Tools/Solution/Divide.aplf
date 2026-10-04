@@ -1,0 +1,9 @@
+ r←req Divide payload
+⍝ Stretch goal: return payload.a divided by payload.b, e.g. {"a":6,"b":3} gives 2
+⍝ A dyadic endpoint receives the request as its left argument; req.Fail sets an HTTP error status
+ :If 0=payload.b
+     r←'Cannot divide by zero'
+     'Cannot divide by zero'req.Fail 400
+ :Else
+     r←payload.a÷payload.b
+ :EndIf

@@ -1,0 +1,11 @@
+ r←Hello payload;name
+⍝ Return a greeting for payload.name, e.g. {"name":"Ada"} gives {"greeting":"Hello, Ada!"}
+⍝ If there is no name, greet "World"
+ :If 9≠⌊⎕NC'payload' ⍝ no request body or query string: payload is '' rather than a namespace
+     payload←⎕NS''
+ :EndIf
+ name←{6::'World' ⋄ ⍵.name}payload
+⍝ v20: name←payload ⎕VGET ⊂'name' 'World'
+ r←⎕NS''
+ r.greeting←'Hello, ',(⍕name),'!'
+⍝ v20: r←(greeting: 'Hello, ',(⍕name),'!')

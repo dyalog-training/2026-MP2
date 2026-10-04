@@ -1,0 +1,6 @@
+ r←Hello payload
+⍝ Return a greeting for payload.name, e.g. {"name":"Ada"} gives {"greeting":"Hello, Ada!"}
+⍝ If there is no name, greet "World"
+⍝ payload is a namespace made from the request's JSON body, or '' if the request had no body
+⍝ Step B2: replace the line below with your code
+ r←'Hello is not written yet'
