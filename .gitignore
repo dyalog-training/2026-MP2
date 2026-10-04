@@ -1,0 +1,7 @@
+# Private issue tracking (see .claude/commands/make-issues.md)
+docs/issues/
+docs/
+.claude/
+.devcontainer/
+.vscode/
+Tests/

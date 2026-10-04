@@ -1,0 +1,80 @@
+ {ok}←{port}Setup root;t;c;j;r;rc;msg
+⍝ Load the workshop tools into # and check that they work
+⍝ root - the folder where the workshop materials were cloned or unpacked
+⍝ port - [optional] port for the self-check server (default 8089)
+⍝ ok   - 1 if everything is ready, 0 if a problem was found (the problem is printed)
+⍝ Usage:
+⍝      2 ⎕FIX 'file://<repo>/Exercises/Setup.aplf'
+⍝      Setup '<repo>'
+ ok←0
+ :If 0=⎕NC'port'
+     port←8089
+ :EndIf
+
+⍝ Use forward slashes on every platform and drop any trailing slash
+ root←'/'@('\'∘=),root
+ root↓⍨←-'/'=⊃⌽root
+ :If ~⎕NEXISTS root,'/Source/Jarvis.dyalog'
+     ⎕←'Problem: cannot find the workshop files in "',root,'"'
+     ⎕←'Pass the folder where you cloned or unpacked the workshop materials, for example:'
+     ⎕←'      Setup ''C:/Users/me/2026-MP2'''
+     →0
+ :EndIf
+ #.WorkshopRoot←root
+
+⍝ Copy Conga into # first, so that every tool finds it without extra configuration
+ :If 9≠⌊#.⎕NC⊂'Conga'
+     :Trap 0
+         'Conga'#.⎕CY'conga'
+     :Else
+         ⎕←'Problem: could not copy Conga from the conga workspace: ',⎕DMX.EM
+         →0
+     :EndTrap
+ :EndIf
+
+⍝ Load the tools
+ :For t :In 'HttpCommand.dyalog' 'Jarvis.dyalog' 'WebSocketClient.aplc'
+     :Trap 0
+         {}#.⎕FIX'file://',root,'/Source/',t
+     :Else
+         ⎕←'Problem: could not load ',t,': ',⎕DMX.EM
+         →0
+     :EndTrap
+ :EndFor
+ ⎕←'Loaded:'
+ :For t :In #.HttpCommand #.Jarvis #.WebSocketClient
+     ⎕←' ',∊' ',¨t.Version
+ :EndFor
+
+⍝ Self-check: start a Jarvis server on localhost, call it with HttpCommand, and stop it
+ ⎕←'Checking that a Jarvis server can run on localhost:',⍕port
+ :Trap 0
+     c←⎕NS''
+     {}c.⎕FX'r←Ping w' 'r←''pong'''
+     j←#.Jarvis.New''
+     j.(Port CodeLocation Logging DYALOG_JARVIS_THREAD)←port c 0 'DEBUG'
+     (rc msg)←j.Start
+     :If rc≠0
+         ⎕←'Problem: could not start a Jarvis server: ',msg
+         ⎕←'If another program is using port ',(⍕port),', try a different port, for example:'
+         ⎕←'      ',(⍕port+1),' Setup ''',root,''''
+         →0
+     :EndIf
+     r←#.HttpCommand.GetJSON'post'('localhost:',(⍕port),'/Ping')''
+     {}j.Stop
+     :If r.rc≠0
+         ⎕←'Problem: HttpCommand could not reach the Jarvis server: ',r.msg
+         →0
+     :ElseIf (200≠r.HttpStatus)∨'pong'≢r.Data
+         ⎕←'Problem: unexpected response from the Jarvis server (HTTP status ',(⍕r.HttpStatus),')'
+         →0
+     :EndIf
+ :Else
+     ⎕←'Problem: the self-check failed: ',⎕DMX.EM,(0<≢⎕DMX.Message)/': ',⎕DMX.Message
+     :If 9=⌊⎕NC'j'
+         {}j.Stop
+     :EndIf
+     →0
+ :EndTrap
+ ⎕←'Ready'
+ ok←1
