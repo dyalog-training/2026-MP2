@@ -223,7 +223,7 @@ If time is up or you're stuck, load the solution. `Run2` stops the servers it st
 Client 5
 ```
 
-Changes you make with `)ED` live in your session; the files in `Start/` don't change. The finished versions are in `Solution/`.
+Changes you make with `)ED` will update the in-session copy and the source file in `Start/`. The finished versions are in `Solution/`.
 
 ## Documentation
 
